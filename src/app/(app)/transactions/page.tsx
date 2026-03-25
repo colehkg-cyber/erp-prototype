@@ -1,16 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import {
+  Search,
+  FileCheck2,
+  AlertTriangle,
+  BarChart3,
+  Paperclip,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  transactions,
+  transactions as initialTransactions,
   CATEGORIES,
   getCardById,
   formatAmount,
+  getReceiptStats,
 } from "@/lib/dummy-data";
+import type { Transaction } from "@/lib/dummy-data";
+import ReceiptDialog from "@/components/receipt-dialog";
 
 function confidenceBadge(confidence: number) {
   if (confidence >= 95)
@@ -35,9 +45,12 @@ function confidenceBadge(confidence: number) {
 export default function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [txns, setTxns] = useState<Transaction[]>(initialTransactions);
+  const [selectedTxn, setSelectedTxn] = useState<Transaction | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filtered = useMemo(() => {
-    return transactions.filter((t) => {
+    return txns.filter((t) => {
       const matchesCategory =
         categoryFilter === "all" || t.category === categoryFilter;
       const matchesSearch =
@@ -45,15 +58,95 @@ export default function TransactionsPage() {
         t.merchantName.toLowerCase().includes(search.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [search, categoryFilter]);
+  }, [search, categoryFilter, txns]);
+
+  const stats = useMemo(() => getReceiptStats(filtered), [filtered]);
+
+  const handleRowClick = useCallback(
+    (txn: Transaction) => {
+      setSelectedTxn(txn);
+      setDialogOpen(true);
+    },
+    []
+  );
+
+  const handleVerify = useCallback(
+    (txnId: string) => {
+      setTxns((prev) =>
+        prev.map((t) =>
+          t.id === txnId ? { ...t, receiptStatus: "증빙완료" as const } : t
+        )
+      );
+      // Also update selectedTxn if it's the same
+      setSelectedTxn((prev) =>
+        prev && prev.id === txnId
+          ? { ...prev, receiptStatus: "증빙완료" as const }
+          : prev
+      );
+    },
+    []
+  );
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">거래내역</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          거래내역
+        </h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-500">
           카드 결제 내역을 조회하고 자동 분류 결과를 확인합니다
         </p>
+      </div>
+
+      {/* 증빙 현황 카드 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="border border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="rounded-lg bg-emerald-100 p-2.5 dark:bg-emerald-500/15">
+              <FileCheck2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-xs text-emerald-600 dark:text-emerald-500">
+                증빙완료
+              </p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                {stats.verified}건
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/5">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="rounded-lg bg-amber-100 p-2.5 dark:bg-amber-500/15">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-xs text-amber-600 dark:text-amber-500">
+                미증빙
+              </p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                {stats.unverified}건
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-blue-200 bg-blue-50 dark:border-blue-500/20 dark:bg-blue-500/5">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="rounded-lg bg-blue-100 p-2.5 dark:bg-blue-500/15">
+              <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-xs text-blue-600 dark:text-blue-500">
+                증빙률
+              </p>
+              <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                {stats.rate}%
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filters */}
@@ -99,6 +192,7 @@ export default function TransactionsPage() {
                   <th className="px-5 py-3.5 text-center font-medium">
                     분류 신뢰도
                   </th>
+                  <th className="px-5 py-3.5 text-center font-medium">증빙</th>
                   <th className="px-5 py-3.5 text-center font-medium">상태</th>
                 </tr>
               </thead>
@@ -108,11 +202,14 @@ export default function TransactionsPage() {
                   return (
                     <tr
                       key={txn.id}
-                      className="border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-[#1E2942]/50 dark:hover:bg-white/[0.02]"
+                      onClick={() => handleRowClick(txn)}
+                      className="border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-[#1E2942]/50 dark:hover:bg-white/[0.02] cursor-pointer"
                     >
                       <td className="px-5 py-3 text-gray-600 dark:text-gray-400">
                         <div>{txn.date}</div>
-                        <div className="text-xs text-gray-400 dark:text-gray-600">{txn.time}</div>
+                        <div className="text-xs text-gray-400 dark:text-gray-600">
+                          {txn.time}
+                        </div>
                       </td>
                       <td className="px-5 py-3 font-medium text-gray-900 dark:text-gray-200">
                         {txn.merchantName}
@@ -135,6 +232,27 @@ export default function TransactionsPage() {
                         {confidenceBadge(txn.confidence)}
                       </td>
                       <td className="px-5 py-3 text-center">
+                        {txn.receiptStatus === "증빙완료" ? (
+                          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border-0 text-xs gap-1">
+                            <Paperclip className="h-3 w-3" />
+                            증빙완료
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-500/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRowClick(txn);
+                            }}
+                          >
+                            <AlertTriangle className="mr-1 h-3 w-3" />
+                            미증빙
+                          </Button>
+                        )}
+                      </td>
+                      <td className="px-5 py-3 text-center">
                         <span
                           className={`text-xs ${
                             txn.status === "확인"
@@ -155,6 +273,14 @@ export default function TransactionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Receipt Dialog */}
+      <ReceiptDialog
+        transaction={selectedTxn}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onVerify={handleVerify}
+      />
     </div>
   );
 }

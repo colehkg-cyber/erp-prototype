@@ -21,6 +21,7 @@ export interface Transaction {
   accountCode: string;
   confidence: number; // 0-100
   status: "확인" | "미분류" | "수정됨";
+  receiptStatus: "증빙완료" | "미증빙";
 }
 
 export type CategoryType =
@@ -184,6 +185,7 @@ function generateTransactions(): Transaction[] {
 
     const confidence = confidences[Math.floor(seededRandom(seed + 5) * confidences.length)];
     const status = confidence >= 80 ? "확인" : confidence >= 70 ? "미분류" : "미분류";
+    const receiptStatus = seededRandom(seed + 7) > 0.45 ? "증빙완료" as const : "미증빙" as const;
 
     transactions.push({
       id: `txn-${String(i + 1).padStart(4, "0")}`,
@@ -196,6 +198,7 @@ function generateTransactions(): Transaction[] {
       accountCode: ACCOUNT_CODES[merchant.category],
       confidence,
       status: status as Transaction["status"],
+      receiptStatus,
     });
   }
 
@@ -278,6 +281,15 @@ export function getBillingHistory(): BillingHistory[] {
     }
     return b;
   });
+}
+
+// 증빙 현황 통계
+export function getReceiptStats(txns: Transaction[]) {
+  const total = txns.length;
+  const verified = txns.filter((t) => t.receiptStatus === "증빙완료").length;
+  const unverified = total - verified;
+  const rate = total > 0 ? Math.round((verified / total) * 100) : 0;
+  return { total, verified, unverified, rate };
 }
 
 // 카드 ID로 카드 정보 가져오기
