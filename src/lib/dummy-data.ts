@@ -1,45 +1,8 @@
 // 뉴젠 AI ERP 프로토타입 더미 데이터
 
-export interface Card {
-  id: string;
-  cardCompany: string;
-  cardName: string;
-  cardNumber: string; // 마스킹된 번호
-  color: string;
-  monthlyAmount: number;
-  monthlyCount: number;
-}
+import type { Card, Transaction, CategoryType, BillingHistory } from "./types";
 
-export interface Transaction {
-  id: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-  cardId: string;
-  merchantName: string;
-  amount: number;
-  category: CategoryType;
-  accountCode: string;
-  confidence: number; // 0-100
-  status: "확인" | "미분류" | "수정됨";
-  receiptStatus: "증빙완료" | "미증빙";
-}
-
-export type CategoryType =
-  | "식비"
-  | "교통비"
-  | "사무용품"
-  | "접대비"
-  | "통신비"
-  | "복리후생"
-  | "기타";
-
-export interface BillingHistory {
-  month: string; // YYYY-MM
-  transactionCount: number;
-  unitPrice: number;
-  totalAmount: number;
-  status: "납부완료" | "청구중" | "예정";
-}
+export type { Card, Transaction, CategoryType, BillingHistory };
 
 export const CATEGORIES: CategoryType[] = [
   "식비",

@@ -39,7 +39,6 @@ export function AIChatPanel() {
   const addResponse = useCallback((question: string) => {
     setIsProcessing(true);
 
-    // Add user message
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -47,11 +46,9 @@ export function AIChatPanel() {
     };
     setMessages((prev) => [...prev, userMsg]);
 
-    // Find matching answer
     const match = chatQAData.find((qa) => qa.question === question);
     const answer = match ? match.answer : defaultResponse;
 
-    // Add typing indicator
     const typingId = (Date.now() + 1).toString();
     setTimeout(() => {
       setMessages((prev) => [
@@ -60,13 +57,10 @@ export function AIChatPanel() {
       ]);
     }, 300);
 
-    // Replace with actual answer
     setTimeout(() => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === typingId
-            ? { ...m, content: answer, isTyping: false }
-            : m
+          m.id === typingId ? { ...m, content: answer, isTyping: false } : m
         )
       );
       setIsProcessing(false);
@@ -104,31 +98,25 @@ export function AIChatPanel() {
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Panel */}
-      <div className="fixed bottom-6 right-6 z-50 flex w-[400px] max-w-[calc(100vw-48px)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-[#121A2E]"
-        style={{ height: "560px" }}
-      >
+      {/* Panel — fullscreen on mobile, floating on desktop */}
+      <div className="fixed inset-0 z-50 flex flex-col bg-white sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:max-w-[calc(100vw-48px)] sm:overflow-hidden sm:rounded-2xl sm:border sm:border-gray-200 sm:shadow-2xl dark:bg-[#121A2E] sm:dark:border-white/10">
         {/* Header */}
         <div
-          className="flex items-center justify-between px-5 py-4"
-          style={{
-            background: "linear-gradient(135deg, #3B82F6, #8B5CF6)",
-          }}
+          className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4"
+          style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
         >
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
               <Sparkles className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">
-                뉴젠 AI 어시스턴트
-              </h3>
+              <h3 className="text-sm font-semibold text-white">뉴젠 AI 어시스턴트</h3>
               <p className="text-xs text-white/70">무엇이든 물어보세요</p>
             </div>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/20 hover:text-white"
           >
             <X className="h-5 w-5" />
           </button>
@@ -141,22 +129,23 @@ export function AIChatPanel() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-500/20 dark:to-purple-500/20">
                 <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <p className="mb-1 text-sm font-medium text-gray-900 dark:text-white">
-                안녕하세요! 👋
-              </p>
+              <p className="mb-1 text-sm font-medium text-gray-900 dark:text-white">안녕하세요! 👋</p>
               <p className="mb-5 text-center text-xs text-gray-500 dark:text-gray-400">
                 ERP 데이터에 대해 궁금한 점을 물어보세요
               </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {chatQAData.map((qa) => (
-                  <button
-                    key={qa.question}
-                    onClick={() => addResponse(qa.question)}
-                    className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
-                  >
-                    {qa.question}
-                  </button>
-                ))}
+              {/* Suggestion chips — horizontal scroll on mobile */}
+              <div className="-mx-4 w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:overflow-visible sm:px-0">
+                <div className="flex flex-nowrap justify-center gap-2 sm:flex-wrap">
+                  {chatQAData.map((qa) => (
+                    <button
+                      key={qa.question}
+                      onClick={() => addResponse(qa.question)}
+                      className="shrink-0 rounded-full border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 sm:py-1.5 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
+                    >
+                      {qa.question}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
@@ -207,7 +196,7 @@ export function AIChatPanel() {
                 <button
                   key={qa.question}
                   onClick={() => addResponse(qa.question)}
-                  className="shrink-0 rounded-full border border-gray-200 px-2.5 py-1 text-[11px] text-gray-500 transition-colors hover:border-blue-300 hover:text-blue-600 dark:border-white/10 dark:text-gray-400 dark:hover:border-blue-500/30 dark:hover:text-blue-400"
+                  className="shrink-0 rounded-full border border-gray-200 px-2.5 py-1.5 text-[11px] text-gray-500 transition-colors hover:border-blue-300 hover:text-blue-600 dark:border-white/10 dark:text-gray-400 dark:hover:border-blue-500/30 dark:hover:text-blue-400"
                 >
                   {qa.question}
                 </button>
@@ -227,12 +216,12 @@ export function AIChatPanel() {
               onKeyDown={handleKeyDown}
               placeholder="질문을 입력하세요..."
               disabled={isProcessing}
-              className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-blue-400 focus:bg-white disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-500 dark:focus:bg-white/[0.08]"
+              className="min-h-[44px] flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-blue-400 focus:bg-white disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-blue-500 dark:focus:bg-white/[0.08]"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isProcessing}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition-all hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition-all hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600"
             >
               <Send className="h-4 w-4" />
             </button>

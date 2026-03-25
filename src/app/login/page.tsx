@@ -16,11 +16,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#0A0E1A]">
-      <div className="w-full max-w-sm px-4">
-        {/* Card wrapper for light mode */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-[#1E2942] dark:bg-[#121A2E] dark:shadow-none">
-          <div className="space-y-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-[#0A0E1A]">
+      <div className="w-full max-w-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-[#1E2942] dark:bg-[#121A2E] dark:shadow-none">
+          <div className="space-y-6 sm:space-y-8">
             {/* Logo */}
             <div className="text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 dark:bg-[#005AE0]">
@@ -43,7 +42,7 @@ export default function LoginPage() {
                   placeholder="admin@neuzen.co.kr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white dark:border-[#1E2942] dark:bg-[#0A0E1A] dark:text-gray-200 dark:placeholder:text-gray-600"
+                  className="min-h-[44px] border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white dark:border-[#1E2942] dark:bg-[#0A0E1A] dark:text-gray-200 dark:placeholder:text-gray-600"
                 />
               </div>
               <div>
@@ -53,12 +52,12 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white dark:border-[#1E2942] dark:bg-[#0A0E1A] dark:text-gray-200 dark:placeholder:text-gray-600"
+                  className="min-h-[44px] border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white dark:border-[#1E2942] dark:bg-[#0A0E1A] dark:text-gray-200 dark:placeholder:text-gray-600"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#005AE0] dark:hover:bg-[#0047B3]"
+                className="min-h-[44px] w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-[#005AE0] dark:hover:bg-[#0047B3]"
               >
                 로그인
               </Button>

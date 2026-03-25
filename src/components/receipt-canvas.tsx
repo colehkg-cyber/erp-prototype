@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { Transaction } from "@/lib/dummy-data";
+import type { Transaction } from "@/lib/types";
 import { getCardById, formatAmount } from "@/lib/dummy-data";
 
 // 가라 사업자번호/승인번호 생성 (deterministic)

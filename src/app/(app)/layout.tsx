@@ -1,39 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { AIChatPanel } from "@/components/ai-chat/chat-panel";
+import { SidebarProvider, useSidebar } from "@/components/layout/sidebar-context";
 
-const STORAGE_KEY = "erp-sidebar-collapsed";
-
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "true") setCollapsed(true);
-    setMounted(true);
-
-    const handler = (e: Event) => {
-      setCollapsed((e as CustomEvent).detail);
-    };
-    window.addEventListener("sidebar-toggle", handler);
-    return () => window.removeEventListener("sidebar-toggle", handler);
-  }, []);
+function AppShell({ children }: { children: React.ReactNode }) {
+  const { collapsed, mounted } = useSidebar();
+  const sidebarWidth = mounted ? (collapsed ? 56 : 240) : 240;
 
   return (
     <div className="min-h-screen bg-[#F5F5F8] dark:bg-[#0A0E1A]">
       <Sidebar />
       <div
         className="transition-all duration-300"
-        style={{ paddingLeft: mounted ? (collapsed ? 56 : 240) : 240 }}
+        style={{ ["--sidebar-w" as string]: `${sidebarWidth}px` }}
       >
-        <Header />
-        <main className="p-6">{children}</main>
+        <div className="transition-all duration-300 md:pl-[var(--sidebar-w)]">
+          <Header />
+          <main className="p-3 sm:p-6">{children}</main>
+        </div>
       </div>
       <AIChatPanel />
     </div>
+  );
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppShell>{children}</AppShell>
+    </SidebarProvider>
   );
 }

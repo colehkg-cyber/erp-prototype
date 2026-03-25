@@ -1,7 +1,6 @@
-export interface ChatQA {
-  question: string;
-  answer: string;
-}
+import type { ChatQA } from "@/lib/types";
+
+export type { ChatQA };
 
 export const chatQAData: ChatQA[] = [
   {
