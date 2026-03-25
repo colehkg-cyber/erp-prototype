@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath: "/erp-prototype",
-  images: { unoptimized: true },
+  /* Vercel 배포 — SSR 활성화 */
 };
 
 export default nextConfig;
