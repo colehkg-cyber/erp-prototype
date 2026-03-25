@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Receipt,
   CreditCard,
@@ -35,6 +36,13 @@ const stats = getMonthlyStats();
 const dailyTrend = getDailyTrend();
 const categoryBreakdown = getCategoryBreakdown();
 const recentTransactions = transactions.slice(0, 10);
+
+const subTabs = [
+  { id: "ai", label: "AI 자동수집" },
+  { id: "accounting", label: "회계" },
+  { id: "vat", label: "부가가치" },
+  { id: "report", label: "리포트" },
+];
 
 const summaryCards = [
   {
@@ -80,6 +88,7 @@ function confidenceBadge(confidence: number) {
 export default function DashboardPage() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const [activeTab, setActiveTab] = useState("ai");
 
   const tooltipStyle = isDark
     ? {
@@ -108,17 +117,37 @@ export default function DashboardPage() {
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-500">카드 결제 현황을 한눈에 확인하세요</p>
       </div>
 
+      {/* Sub Tabs */}
+      <div className="flex items-center gap-0 border-b border-gray-200 dark:border-white/10">
+        {subTabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`relative px-5 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? "text-blue-600 dark:text-blue-400"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            }`}
+          >
+            {tab.label}
+            {activeTab === tab.id && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400" />
+            )}
+          </button>
+        ))}
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {summaryCards.map((item) => {
           const Icon = item.icon;
           const accentColor = isDark ? item.color : item.lightColor;
           return (
-            <Card key={item.title} className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
+            <Card key={item.title} className="border border-gray-200 bg-white shadow-sm dark:border-[#1E2942] dark:bg-[#121A2E]">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.title}</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{item.title}</p>
                     <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{item.value}</p>
                     <div className="mt-2 flex items-center gap-1">
                       <TrendingUp className="h-3 w-3 text-emerald-500 dark:text-emerald-400" />
@@ -141,11 +170,11 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Line Chart */}
-        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E] lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base text-gray-900 dark:text-gray-200">일별 거래 추이 (최근 30일)</CardTitle>
+        <Card className="border border-gray-200 bg-white shadow-sm dark:border-[#1E2942] dark:bg-[#121A2E] lg:col-span-2">
+          <CardHeader className="border-b border-gray-100 dark:border-white/[0.04]">
+            <CardTitle className="text-sm font-bold text-gray-900 dark:text-gray-200">일별 거래 추이 (최근 30일)</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dailyTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
@@ -167,11 +196,11 @@ export default function DashboardPage() {
         </Card>
 
         {/* Pie Chart */}
-        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
-          <CardHeader>
-            <CardTitle className="text-base text-gray-900 dark:text-gray-200">카테고리별 지출</CardTitle>
+        <Card className="border border-gray-200 bg-white shadow-sm dark:border-[#1E2942] dark:bg-[#121A2E]">
+          <CardHeader className="border-b border-gray-100 dark:border-white/[0.04]">
+            <CardTitle className="text-sm font-bold text-gray-900 dark:text-gray-200">카테고리별 지출</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
@@ -204,7 +233,7 @@ export default function DashboardPage() {
                     />
                     <span className="text-gray-600 dark:text-gray-400">{item.name}</span>
                   </div>
-                  <span className="text-gray-900 dark:text-gray-300">{formatAmount(item.value)}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-300">{formatAmount(item.value)}</span>
                 </div>
               ))}
             </div>
@@ -213,42 +242,42 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Transactions */}
-      <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
-        <CardHeader>
-          <CardTitle className="text-base text-gray-900 dark:text-gray-200">최근 거래 10건</CardTitle>
+      <Card className="border border-gray-200 bg-white shadow-sm dark:border-[#1E2942] dark:bg-[#121A2E]">
+        <CardHeader className="border-b border-gray-100 dark:border-white/[0.04]">
+          <CardTitle className="text-sm font-bold text-gray-900 dark:text-gray-200">최근 거래 10건</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 text-left text-xs text-gray-500 dark:border-[#1E2942] dark:text-gray-500">
-                  <th className="pb-3 font-medium">날짜</th>
-                  <th className="pb-3 font-medium">가맹점</th>
-                  <th className="pb-3 font-medium">카드</th>
-                  <th className="pb-3 font-medium">카테고리</th>
-                  <th className="pb-3 text-right font-medium">금액</th>
-                  <th className="pb-3 text-center font-medium">신뢰도</th>
+                <tr className="border-b border-gray-200 bg-gray-50/80 text-left text-xs text-gray-500 dark:border-[#1E2942] dark:bg-white/[0.02] dark:text-gray-500">
+                  <th className="px-3 py-3 font-medium">날짜</th>
+                  <th className="px-3 py-3 font-medium">가맹점</th>
+                  <th className="px-3 py-3 font-medium">카드</th>
+                  <th className="px-3 py-3 font-medium">카테고리</th>
+                  <th className="px-3 py-3 text-right font-medium">금액</th>
+                  <th className="px-3 py-3 text-center font-medium">신뢰도</th>
                 </tr>
               </thead>
               <tbody>
                 {recentTransactions.map((txn) => {
                   const card = getCardById(txn.cardId);
                   return (
-                    <tr key={txn.id} className="border-b border-gray-100 last:border-0 dark:border-[#1E2942]/50">
-                      <td className="py-3 text-gray-600 dark:text-gray-400">
+                    <tr key={txn.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50 last:border-0 dark:border-[#1E2942]/50 dark:hover:bg-white/[0.02]">
+                      <td className="px-3 py-3 text-gray-600 dark:text-gray-400">
                         {txn.date} {txn.time}
                       </td>
-                      <td className="py-3 text-gray-900 dark:text-gray-200">{txn.merchantName}</td>
-                      <td className="py-3 text-gray-600 dark:text-gray-400">{card?.cardCompany ?? "-"}</td>
-                      <td className="py-3">
+                      <td className="px-3 py-3 font-medium text-gray-900 dark:text-gray-200">{txn.merchantName}</td>
+                      <td className="px-3 py-3 text-gray-600 dark:text-gray-400">{card?.cardCompany ?? "-"}</td>
+                      <td className="px-3 py-3">
                         <Badge variant="outline" className="border-gray-200 text-xs text-gray-600 dark:border-white/10 dark:text-gray-300">
                           {txn.category}
                         </Badge>
                       </td>
-                      <td className="py-3 text-right font-medium text-gray-900 dark:text-white">
+                      <td className="px-3 py-3 text-right font-medium text-gray-900 dark:text-white">
                         {formatAmount(txn.amount)}
                       </td>
-                      <td className="py-3 text-center">{confidenceBadge(txn.confidence)}</td>
+                      <td className="px-3 py-3 text-center">{confidenceBadge(txn.confidence)}</td>
                     </tr>
                   );
                 })}
