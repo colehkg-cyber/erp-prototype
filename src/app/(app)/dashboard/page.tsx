@@ -29,6 +29,7 @@ import {
   getCardById,
   formatAmount,
 } from "@/lib/dummy-data";
+import { useTheme } from "next-themes";
 
 const stats = getMonthlyStats();
 const dailyTrend = getDailyTrend();
@@ -41,6 +42,7 @@ const summaryCards = [
     value: `${stats.totalCount}건`,
     icon: Receipt,
     color: "#005AE0",
+    lightColor: "#2563eb",
     change: "+12%",
   },
   {
@@ -48,6 +50,7 @@ const summaryCards = [
     value: formatAmount(stats.totalAmount),
     icon: CreditCard,
     color: "#00D4FF",
+    lightColor: "#2563eb",
     change: "+8%",
   },
   {
@@ -55,6 +58,7 @@ const summaryCards = [
     value: `${stats.unclassifiedCount}건`,
     icon: AlertTriangle,
     color: "#F59E0B",
+    lightColor: "#F59E0B",
     change: "-3건",
   },
   {
@@ -62,46 +66,70 @@ const summaryCards = [
     value: formatAmount(stats.estimatedBilling),
     icon: CircleDollarSign,
     color: "#10B981",
+    lightColor: "#10B981",
     change: `${stats.totalCount} × 40원`,
   },
 ];
 
 function confidenceBadge(confidence: number) {
-  if (confidence >= 95) return <Badge className="bg-emerald-500/15 text-emerald-400 border-0 text-xs">{confidence}%</Badge>;
-  if (confidence >= 80) return <Badge className="bg-yellow-500/15 text-yellow-400 border-0 text-xs">{confidence}%</Badge>;
-  return <Badge className="bg-red-500/15 text-red-400 border-0 text-xs">{confidence}%</Badge>;
+  if (confidence >= 95) return <Badge className="bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 border-0 text-xs">{confidence}%</Badge>;
+  if (confidence >= 80) return <Badge className="bg-yellow-100 text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-400 border-0 text-xs">{confidence}%</Badge>;
+  return <Badge className="bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400 border-0 text-xs">{confidence}%</Badge>;
 }
 
 export default function DashboardPage() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
+  const tooltipStyle = isDark
+    ? {
+        backgroundColor: "#1E293B",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 8,
+        color: "#fff",
+        fontSize: 12,
+      }
+    : {
+        backgroundColor: "#fff",
+        border: "1px solid #e5e7eb",
+        borderRadius: 8,
+        color: "#111827",
+        fontSize: 12,
+      };
+
+  const gridStroke = isDark ? "#1E293B" : "#e5e7eb";
+  const tickFill = isDark ? "#64748B" : "#6b7280";
+
   return (
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold text-white">대시보드</h1>
-        <p className="mt-1 text-sm text-gray-500">카드 결제 현황을 한눈에 확인하세요</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">대시보드</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-500">카드 결제 현황을 한눈에 확인하세요</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {summaryCards.map((item) => {
           const Icon = item.icon;
+          const accentColor = isDark ? item.color : item.lightColor;
           return (
-            <Card key={item.title} className="border-white/[0.06] bg-[#121A2E]">
+            <Card key={item.title} className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-gray-400">{item.title}</p>
-                    <p className="mt-2 text-2xl font-bold text-white">{item.value}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{item.title}</p>
+                    <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{item.value}</p>
                     <div className="mt-2 flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3 text-emerald-400" />
-                      <span className="text-xs text-gray-500">{item.change}</span>
+                      <TrendingUp className="h-3 w-3 text-emerald-500 dark:text-emerald-400" />
+                      <span className="text-xs text-gray-500 dark:text-gray-500">{item.change}</span>
                     </div>
                   </div>
                   <div
                     className="rounded-lg p-2.5"
-                    style={{ backgroundColor: `${item.color}15` }}
+                    style={{ backgroundColor: `${accentColor}15` }}
                   >
-                    <Icon className="h-5 w-5" style={{ color: item.color }} />
+                    <Icon className="h-5 w-5" style={{ color: accentColor }} />
                   </div>
                 </div>
               </CardContent>
@@ -113,33 +141,25 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Line Chart */}
-        <Card className="border-white/[0.06] bg-[#121A2E] lg:col-span-2">
+        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E] lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base text-gray-200">일별 거래 추이 (최근 30일)</CardTitle>
+            <CardTitle className="text-base text-gray-900 dark:text-gray-200">일별 거래 추이 (최근 30일)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={dailyTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-                <XAxis dataKey="date" tick={{ fill: "#64748B", fontSize: 11 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fill: "#64748B", fontSize: 11 }} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1E293B",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 8,
-                    color: "#fff",
-                    fontSize: 12,
-                  }}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="date" tick={{ fill: tickFill, fontSize: 11 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fill: tickFill, fontSize: 11 }} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={tooltipStyle} />
                 <Line
                   type="monotone"
                   dataKey="count"
                   name="거래건수"
-                  stroke="#005AE0"
+                  stroke={isDark ? "#005AE0" : "#2563eb"}
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 4, fill: "#005AE0" }}
+                  activeDot={{ r: 4, fill: isDark ? "#005AE0" : "#2563eb" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -147,9 +167,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Pie Chart */}
-        <Card className="border-white/[0.06] bg-[#121A2E]">
+        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
           <CardHeader>
-            <CardTitle className="text-base text-gray-200">카테고리별 지출</CardTitle>
+            <CardTitle className="text-base text-gray-900 dark:text-gray-200">카테고리별 지출</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
@@ -170,13 +190,7 @@ export default function DashboardPage() {
                 </Pie>
                 <Tooltip
                   formatter={(value) => formatAmount(Number(value))}
-                  contentStyle={{
-                    backgroundColor: "#1E293B",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 8,
-                    color: "#fff",
-                    fontSize: 12,
-                  }}
+                  contentStyle={tooltipStyle}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -188,9 +202,9 @@ export default function DashboardPage() {
                       className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-gray-400">{item.name}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{item.name}</span>
                   </div>
-                  <span className="text-gray-300">{formatAmount(item.value)}</span>
+                  <span className="text-gray-900 dark:text-gray-300">{formatAmount(item.value)}</span>
                 </div>
               ))}
             </div>
@@ -199,15 +213,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Transactions */}
-      <Card className="border-white/[0.06] bg-[#121A2E]">
+      <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
         <CardHeader>
-          <CardTitle className="text-base text-gray-200">최근 거래 10건</CardTitle>
+          <CardTitle className="text-base text-gray-900 dark:text-gray-200">최근 거래 10건</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-left text-xs text-gray-500">
+                <tr className="border-b border-gray-200 text-left text-xs text-gray-500 dark:border-[#1E2942] dark:text-gray-500">
                   <th className="pb-3 font-medium">날짜</th>
                   <th className="pb-3 font-medium">가맹점</th>
                   <th className="pb-3 font-medium">카드</th>
@@ -220,18 +234,18 @@ export default function DashboardPage() {
                 {recentTransactions.map((txn) => {
                   const card = getCardById(txn.cardId);
                   return (
-                    <tr key={txn.id} className="border-b border-white/[0.03] last:border-0">
-                      <td className="py-3 text-gray-400">
+                    <tr key={txn.id} className="border-b border-gray-100 last:border-0 dark:border-[#1E2942]/50">
+                      <td className="py-3 text-gray-600 dark:text-gray-400">
                         {txn.date} {txn.time}
                       </td>
-                      <td className="py-3 text-gray-200">{txn.merchantName}</td>
-                      <td className="py-3 text-gray-400">{card?.cardCompany ?? "-"}</td>
+                      <td className="py-3 text-gray-900 dark:text-gray-200">{txn.merchantName}</td>
+                      <td className="py-3 text-gray-600 dark:text-gray-400">{card?.cardCompany ?? "-"}</td>
                       <td className="py-3">
-                        <Badge variant="outline" className="border-white/10 text-xs text-gray-300">
+                        <Badge variant="outline" className="border-gray-200 text-xs text-gray-600 dark:border-white/10 dark:text-gray-300">
                           {txn.category}
                         </Badge>
                       </td>
-                      <td className="py-3 text-right font-medium text-white">
+                      <td className="py-3 text-right font-medium text-gray-900 dark:text-white">
                         {formatAmount(txn.amount)}
                       </td>
                       <td className="py-3 text-center">{confidenceBadge(txn.confidence)}</td>

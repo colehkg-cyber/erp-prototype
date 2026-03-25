@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditCard, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cards, formatAmount } from "@/lib/dummy-data";
 
 export default function CardsPage() {
@@ -11,38 +11,38 @@ export default function CardsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">카드관리</h1>
-        <p className="mt-1 text-sm text-gray-500">등록된 법인카드를 관리합니다</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">카드관리</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-500">등록된 법인카드를 관리합니다</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="border-white/[0.06] bg-[#121A2E]">
+        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-400">등록 카드</p>
-            <p className="mt-1 text-3xl font-bold text-white">{cards.length}<span className="ml-1 text-base text-gray-500">장</span></p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">등록 카드</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{cards.length}<span className="ml-1 text-base text-gray-500 dark:text-gray-500">장</span></p>
           </CardContent>
         </Card>
-        <Card className="border-white/[0.06] bg-[#121A2E]">
+        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-400">이번달 총 사용금액</p>
-            <p className="mt-1 text-3xl font-bold text-white">{formatAmount(totalMonthly)}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">이번달 총 사용금액</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{formatAmount(totalMonthly)}</p>
           </CardContent>
         </Card>
-        <Card className="border-white/[0.06] bg-[#121A2E]">
+        <Card className="border border-gray-200 bg-white dark:border-[#1E2942] dark:bg-[#121A2E]">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-400">이번달 총 건수</p>
-            <p className="mt-1 text-3xl font-bold text-white">{totalCount}<span className="ml-1 text-base text-gray-500">건</span></p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">이번달 총 건수</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{totalCount}<span className="ml-1 text-base text-gray-500 dark:text-gray-500">건</span></p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Card Grid */}
+      {/* Card Grid — gradients stay the same in both modes */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
           <div
             key={card.id}
-            className="relative overflow-hidden rounded-2xl p-6"
+            className="relative overflow-hidden rounded-2xl p-6 shadow-md dark:shadow-none"
             style={{
               background: `linear-gradient(135deg, ${card.color} 0%, ${card.color}CC 50%, ${card.color}99 100%)`,
             }}
