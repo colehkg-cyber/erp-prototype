@@ -7,6 +7,7 @@ import {
   CreditCard,
   Receipt,
   CircleDollarSign,
+  Sparkles,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -22,6 +23,7 @@ import {
 
 const menuItems = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
+  { href: "/auto-journal", label: "AI 자동분개", icon: Sparkles },
   { href: "/cards", label: "카드관리", icon: CreditCard },
   { href: "/transactions", label: "거래내역", icon: Receipt },
   { href: "/billing", label: "과금현황", icon: CircleDollarSign },
